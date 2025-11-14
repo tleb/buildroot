@@ -45,14 +45,24 @@ HOST_LLVM_CONF_OPTS += -DCMAKE_INSTALL_RPATH="$(HOST_DIR)/lib"
 LLVM_TARGET_ARCH = $(call qstrip,$(BR2_PACKAGE_LLVM_TARGET_ARCH))
 
 # Build backend for target architecture. This include backends like
-# AMDGPU. We need to special case RISCV.
-ifneq ($(filter riscv%,$(LLVM_TARGET_ARCH)),)
-LLVM_TARGETS_TO_BUILD = RISCV
+# AMDGPU. We need to special case RISCV and MIPS.
+ifeq ($(LLVM_TARGET_ARCH),Mips)
+	HOST_LLVM_CONF_OPTS += -DLLVM_EXPERIMENTAL_TARGETS_TO_BUILD="$(LLVM_TARGET_ARCH)"
+	LLVM_CONF_OPTS += -DLLVM_EXPERIMENTAL_TARGETS_TO_BUILD="$(LLVM_TARGET_ARCH)"
+	# Notice how LLVM_TARGETS_TO_BUILD doesn't contain LLVM_TARGET_ARCH.
 else
-LLVM_TARGETS_TO_BUILD = $(LLVM_TARGET_ARCH)
+	ifneq ($(filter riscv%,$(LLVM_TARGET_ARCH)),)
+	LLVM_TARGETS_TO_BUILD = RISCV
+	else
+	LLVM_TARGETS_TO_BUILD = $(LLVM_TARGET_ARCH)
+	endif
 endif
 HOST_LLVM_CONF_OPTS += -DLLVM_TARGETS_TO_BUILD="$(subst $(space),;,$(LLVM_TARGETS_TO_BUILD))"
 LLVM_CONF_OPTS += -DLLVM_TARGETS_TO_BUILD="$(subst $(space),;,$(LLVM_TARGETS_TO_BUILD))"
+
+# TODO: maybe support not having any target active and only the bottom BPF case
+# as that is what we want? Currently it looks like it must be
+# LLVM_TARGET_ARCH + BPF, it cannot be a OR.
 
 # LLVM target to use for native code generation. This is required for JIT generation.
 # It must be set to LLVM_TARGET_ARCH for host and target, otherwise we get

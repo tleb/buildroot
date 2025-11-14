@@ -5,6 +5,13 @@ config BR2_PACKAGE_LLVM_ARCH_SUPPORTS
 	default y if BR2_aarch64
 	default y if BR2_arm || BR2_armeb
 	default y if BR2_riscv
+	default y if BR2_mips || BR2_mipsel
+	default y if BR2_mips64 || BR2_mips64el
+
+	# mips        - MIPS (32-bit big endian)
+	# mips64      - MIPS (64-bit big endian)
+	# mips64el    - MIPS (64-bit little endian)
+	# mipsel      - MIPS (32-bit little endian)
 
 config BR2_PACKAGE_LLVM_TARGET_ARCH
 	string
@@ -13,9 +20,15 @@ config BR2_PACKAGE_LLVM_TARGET_ARCH
 	default "X86" if BR2_i386 || BR2_x86_64
 	default "riscv32" if BR2_riscv && !BR2_ARCH_IS_64
 	default "riscv64" if BR2_riscv && BR2_ARCH_IS_64
+	default "X86" if BR2_i386 || BR2_x86_64
+	# TODO: is this correct?
+	# https://github.com/sabotage-linux/sabotage/blob/1c2a019435af6ab23370ed356d41b219e042092e/pkg/llvm-clang601#L92
+	# https://github.com/LeSpocky/ptxdist/blob/8b4232c8d76fccd51e7338379f449add3183f0b9/rules/llvm.make#L53
+	default "Mips" if BR2_mips || BR2_mipsel || BR2_mips64 || BR2_mips64el
 
 config BR2_PACKAGE_LLVM
 	bool "llvm"
+	# TODO: this OR BPF?
 	depends on BR2_PACKAGE_LLVM_ARCH_SUPPORTS
 	depends on BR2_TOOLCHAIN_GCC_AT_LEAST_7
 	depends on BR2_TOOLCHAIN_HAS_THREADS

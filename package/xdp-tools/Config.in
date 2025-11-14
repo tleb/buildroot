@@ -1,0 +1,11 @@
+config BR2_PACKAGE_XDP_TOOLS
+        bool "xdp-tools"
+        depends on BR2_PACKAGE_LIBBPF
+        select BR2_PACKAGE_LIBCAP_NG
+        select BR2_PACKAGE_LIBPCAP
+        help
+          xdp-tools contains a collection of utilities and example code that
+          uses the libxdp library for working with the eXpress Data Path
+          facility of the Linux kernel.
+
+          https://github.com/xdp-project/xdp-tools
